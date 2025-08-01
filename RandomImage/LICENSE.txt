@@ -1,0 +1,180 @@
+# LICENSE
+
+## Random Image Viewer - License Information
+
+This document contains comprehensive license information for the Random Image Viewer application and all its dependencies.
+
+---
+
+## Main Application License
+
+**Random Image Viewer**  
+Copyright (c) 2025
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+---
+
+## Third-Party Dependencies
+
+### Python Software Foundation License
+
+**Python 3.x**  
+Copyright © 2001-2023 Python Software Foundation. All rights reserved.
+
+Licensed under the Python Software Foundation License Version 2.
+Full license: https://docs.python.org/3/license.html
+
+**Tkinter (included with Python)**  
+Copyright © Python Software Foundation
+Licensed under Python Software Foundation License Version 2.
+
+### Requests Library
+
+**Requests: HTTP for Humans**  
+Copyright 2019 Kenneth Reitz
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+### Pillow (PIL Fork)
+
+**Pillow (Python Imaging Library Fork)**  
+
+The Python Imaging Library (PIL) is:
+    Copyright © 1997-2011 by Secret Labs AB
+    Copyright © 1995-2011 by Fredrik Lundh
+
+Pillow is the friendly PIL fork. It is:
+    Copyright © 2010-2023 by Alex Clark and contributors
+
+Like PIL, Pillow is licensed under the open source HPND License:
+
+By obtaining, using, and/or copying this software and/or its associated
+documentation, you agree that you have read, understood, and will comply
+with the following terms and conditions:
+
+Permission to use, copy, modify, and distribute this software and its
+associated documentation for any purpose and without fee is hereby granted,
+provided that the above copyright notice appears in all copies, and that
+both that copyright notice and this permission notice appear in supporting
+documentation, and that the name of Secret Labs AB or the author not be
+used in advertising or publicity pertaining to distribution of the software
+without specific, written prior permission.
+
+SECRET LABS AB AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS
+SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS.
+IN NO EVENT SHALL SECRET LABS AB OR THE AUTHOR BE LIABLE FOR ANY SPECIAL,
+INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM
+LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE
+OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR
+PERFORMANCE OF THIS SOFTWARE.
+
+### PyInstaller (Build Tool)
+
+**PyInstaller**  
+Copyright © 2005-2023, PyInstaller Development Team
+
+Licensed under the GNU General Public License version 2.0 (GPLv2).
+However, the resulting executable is not subject to GPL licensing.
+
+Full license: https://github.com/pyinstaller/pyinstaller/blob/develop/COPYING.txt
+
+---
+
+## Image Sources
+
+### Lorem Picsum
+
+**Lorem Picsum (picsum.photos)**  
+Provides free placeholder images used as the primary image source.
+
+License: Images are provided for free use under the Unsplash License.
+Website: https://picsum.photos/
+Terms: https://unsplash.com/license
+
+### Placeholder.com
+
+**Placeholder.com**  
+Provides fallback placeholder images.
+
+License: Free to use for any purpose.
+Website: https://via.placeholder.com/
+
+### DummyImage.com
+
+**DummyImage.com**  
+Provides additional fallback placeholder images.
+
+License: Free to use for any purpose.
+Website: https://dummyimage.com/
+
+---
+
+## Image Content Licenses
+
+All images fetched by this application are sourced from:
+
+1. **Lorem Picsum**: High-quality photos from Unsplash contributors
+   - Licensed under Unsplash License (free for commercial and personal use)
+   - Attribution not required but appreciated
+   - Original photographers retain copyright
+
+2. **Placeholder Services**: Generated placeholder images
+   - No copyright restrictions
+   - Free for any use
+
+**Important Note**: While the application is free to use, individual images may have their own copyright restrictions. Users are responsible for ensuring proper usage rights for any downloaded images, especially for commercial use.
+
+---
+
+## Additional Legal Information
+
+### Disclaimer of Warranties
+
+THE SOFTWARE AND ALL INCLUDED COMPONENTS ARE PROVIDED "AS IS" WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED. THIS INCLUDES, BUT IS NOT LIMITED TO, WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.
+
+### Limitation of Liability
+
+IN NO EVENT SHALL THE AUTHORS, COPYRIGHT HOLDERS, OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE.
+
+### Network Usage
+
+This application connects to external image services over HTTPS. Users are responsible for:
+- Compliance with their network usage policies
+- Respecting rate limits of image services
+- Understanding that external services may have their own terms of use
+
+### Privacy
+
+This application:
+- Does not collect personal information
+- Does not transmit user data
+- Only connects to image services to download publicly available images
+- Stores images locally on the user's computer
+
+---
+
+## Contact Information
+
+For license questions or concerns about this software, please review the relevant license documents linked above or consult with a legal professional regarding your specific use case.
+
+**Generated**: August 2025  
+**Version**: 1.0.0
+
+---
+
+*This license file is provided for informational purposes. Always refer to the original license documents for the most accurate and up-to-date terms.*
