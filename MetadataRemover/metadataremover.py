@@ -1240,10 +1240,19 @@ class MetadataManagerGUI:
     def process_single_file(self, file_path):
         """Process a single file to remove or edit metadata"""
         try:
+            # Get original file extension for proper PIL handling
+            original_ext = os.path.splitext(file_path)[1]
+            
+            # Check if format is supported
+            if original_ext.lower() not in self.supported_formats:
+                self.log_message(f"  ❌ Unsupported format: {original_ext}")
+                return False
+            
             # Determine output path
             if self.overwrite_original.get():
                 output_path = file_path
-                temp_path = file_path + ".tmp"
+                # Use original extension for temp file so PIL can handle it
+                temp_path = file_path.replace(original_ext, f"_temp{original_ext}")
             else:
                 output_dir = getattr(self, 'output_path_var', tk.StringVar(value="Same as source")).get()
                 if output_dir == "Same as source":
@@ -1256,7 +1265,8 @@ class MetadataManagerGUI:
                     output_path = os.path.join(output_dir, f"{name}_edited{ext}")
                 else:
                     output_path = os.path.join(output_dir, f"{name}_no_metadata{ext}")
-                temp_path = output_path + ".tmp"
+                # Use original extension for temp file so PIL can handle it
+                temp_path = output_path.replace(ext, f"_temp{ext}")
             
             # Create backup if requested
             if self.create_backup.get() and not self.overwrite_original.get():
@@ -1278,13 +1288,29 @@ class MetadataManagerGUI:
                 # Save processed image
                 save_kwargs = {}
                 
-                # Preserve quality for JPEG
-                if file_path.lower().endswith(('.jpg', '.jpeg')):
+                # Determine format from extension
+                file_format = None
+                ext_lower = original_ext.lower()
+                if ext_lower in ['.jpg', '.jpeg']:
+                    file_format = 'JPEG'
                     save_kwargs['quality'] = 95
                     save_kwargs['optimize'] = True
+                elif ext_lower == '.png':
+                    file_format = 'PNG'
+                    save_kwargs['optimize'] = True
+                elif ext_lower in ['.tiff', '.tif']:
+                    file_format = 'TIFF'
+                elif ext_lower == '.bmp':
+                    file_format = 'BMP'
+                elif ext_lower == '.webp':
+                    file_format = 'WEBP'
+                    save_kwargs['quality'] = 95
                 
-                # Save to temporary file first
-                processed_img.save(temp_path, **save_kwargs)
+                # Save to temporary file first with explicit format
+                if file_format:
+                    processed_img.save(temp_path, format=file_format, **save_kwargs)
+                else:
+                    processed_img.save(temp_path, **save_kwargs)
             
             # Move temp file to final location
             if os.path.exists(temp_path):
