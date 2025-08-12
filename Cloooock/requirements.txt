@@ -1,0 +1,14 @@
+# Cloooock - High Precision NTP Desktop Clock
+# Python Dependencies
+
+# NTP client library for network time synchronization
+ntplib==0.4.0
+
+# GUI framework (usually included with Python, but listed for completeness)
+# tkinter is part of Python standard library
+
+# Optional: Enhanced GUI components (if needed in future)
+# Pillow==10.0.1
+
+# Development dependencies (uncomment if needed for development)
+# pyinstaller==5.13.2
