@@ -50,13 +50,14 @@
     </section>
 
     <section id="advancedPanel" class="advanced-panel hidden">
-        <label class="field">
-            Melody width
-            <select id="melodySteps">
-                <option value="16" selected>16 steps</option>
-                <option value="32">32 steps</option>
-            </select>
-        </label>
+        <div class="field">
+            Melody length
+            <div class="length-row">
+                <button id="melodyShrink" class="btn btn-small">− 16</button>
+                <span id="melodyLengthLabel">16 steps</span>
+                <button id="melodyGrow" class="btn btn-small">+ 16</button>
+            </div>
+        </div>
 
         <div class="field midi-controls">
             MIDI

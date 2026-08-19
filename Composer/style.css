@@ -133,6 +133,19 @@ body {
     gap: 6px;
 }
 
+.length-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.length-row span {
+    color: #cdd6f4;
+    font-size: 0.9rem;
+    min-width: 64px;
+    text-align: center;
+}
+
 .midi-row {
     display: flex;
     gap: 8px;
