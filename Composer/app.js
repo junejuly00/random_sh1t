@@ -642,8 +642,12 @@
 
         const melodyPanel = document.getElementById("melodyGrid").closest(".grid-panel");
         melodyPanel.addEventListener("scroll", () => {
-            if (!state.advanced) return;
-            const nearRightEdge = melodyPanel.scrollLeft + melodyPanel.clientWidth >= melodyPanel.scrollWidth - 40;
+            // No `state.advanced` gate here: scrolling only overflows at all
+            // once the grid has already been widened past its default 16
+            // steps, so this can't fire in simple mode. Gating it on the
+            // panel's open/closed state just meant growth silently stopped
+            // the moment someone collapsed the Advanced panel mid-song.
+            const nearRightEdge = melodyPanel.scrollLeft + melodyPanel.clientWidth >= melodyPanel.scrollWidth - 60;
             if (nearRightEdge) growMelody();
         });
 
