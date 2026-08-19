@@ -15,9 +15,11 @@ A tiny web-based composing machine. No install, no build step — open `index.ht
 - **Save / Load** — patterns persist to `localStorage` in your browser.
 - **Record** — captures the live playback and downloads it as a `.webm` audio file.
 - **Advanced mode** (🧪 Advanced button) —
-  - **Unbounded melody length** — grow the piano roll 16 steps at a time (and
-    shrink it back down) for as long as you want. The beat grid stays at 16
-    steps and loops underneath, however long the melody gets.
+  - **Unbounded melody length** — the piano roll extends itself 16 steps at a
+    time as you scroll toward its right edge or place a note in its last
+    column, so you can keep composing without hitting a wall. A −16 button
+    is there to trim it back down. The beat grid stays at 16 steps and loops
+    underneath, however long the melody gets.
   - **MIDI input** — connect a MIDI keyboard/controller (Web MIDI API) and
     play notes live through the current synth waveform.
   - **MIDI export** — download the current pattern as a Standard MIDI File

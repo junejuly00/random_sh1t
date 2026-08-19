@@ -317,6 +317,9 @@
                     pattern[id][step] = !pattern[id][step];
                     cell.classList.toggle("active");
                     if (pattern[id][step]) previewCell(cssClass, id);
+                    if (cssClass === "melody-grid" && state.advanced && pattern[id][step] && step === stepCount - 1) {
+                        growMelody();
+                    }
                 });
                 rowEl.appendChild(cell);
             }
@@ -636,6 +639,13 @@
 
         document.getElementById("melodyGrow").addEventListener("click", growMelody);
         document.getElementById("melodyShrink").addEventListener("click", shrinkMelody);
+
+        const melodyPanel = document.getElementById("melodyGrid").closest(".grid-panel");
+        melodyPanel.addEventListener("scroll", () => {
+            if (!state.advanced) return;
+            const nearRightEdge = melodyPanel.scrollLeft + melodyPanel.clientWidth >= melodyPanel.scrollWidth - 40;
+            if (nearRightEdge) growMelody();
+        });
 
         document.getElementById("midiConnectBtn").addEventListener("click", connectMIDI);
         document.getElementById("midiExportBtn").addEventListener("click", exportMIDI);
