@@ -6,15 +6,26 @@ A tiny web-based composing machine. No install, no build step — open `index.ht
 ## Features
 
 - **Beats** — a 5-track, 16-step drum sequencer (Kick, Snare, Hi-Hat, Clap, Tom).
-- **Melody** — a 14-note, 16-step piano roll (two octaves of C major).
+- **Melody** — a 14-note piano roll (two octaves of C major), 16 steps by
+  default.
 - **Two sound sources for drums** — synthesized in real time via the Web Audio
   API, or short procedurally-generated `.wav` samples (see `samples/`).
 - **Four synth waveforms** for melody notes — sine, triangle, square, sawtooth.
 - **Tempo control** — 60–200 BPM.
 - **Save / Load** — patterns persist to `localStorage` in your browser.
 - **Record** — captures the live playback and downloads it as a `.webm` audio file.
+- **Advanced mode** (🧪 Advanced button) —
+  - **Wider melody** — extend the piano roll from 16 to 32 steps. The beat
+    grid stays at 16 and loops twice underneath a 32-step melody.
+  - **MIDI input** — connect a MIDI keyboard/controller (Web MIDI API) and
+    play notes live through the current synth waveform.
+  - **MIDI export** — download the current pattern as a Standard MIDI File
+    (`.mid`), drums on channel 10 (General MIDI drum map), melody on channel 1.
 
 Everything runs client-side; there's no backend and nothing is uploaded anywhere.
+
+Web MIDI requires a browser that supports it (Chrome/Edge; not Firefox/Safari)
+and, the first time, a permission prompt.
 
 ## Running it
 

@@ -1,7 +1,7 @@
 (() => {
     "use strict";
 
-    const STEPS = 16;
+    const BEAT_STEPS = 16;
     const STORAGE_KEY = "composer_pattern_v1";
 
     const BEAT_ROWS = [
@@ -26,13 +26,18 @@
         tom: "samples/tom.wav",
     };
 
+    // General MIDI drum map (channel 10).
+    const DRUM_MIDI_NOTES = { kick: 36, snare: 38, hihat: 42, clap: 39, tom: 45 };
+
     const state = {
-        beatPattern: Object.fromEntries(BEAT_ROWS.map((r) => [r.id, Array(STEPS).fill(false)])),
-        melodyPattern: Object.fromEntries(MELODY_ROWS.map((n) => [n, Array(STEPS).fill(false)])),
+        beatPattern: Object.fromEntries(BEAT_ROWS.map((r) => [r.id, Array(BEAT_STEPS).fill(false)])),
+        melodyPattern: Object.fromEntries(MELODY_ROWS.map((n) => [n, Array(BEAT_STEPS).fill(false)])),
+        melodySteps: BEAT_STEPS,
         bpm: 120,
         drumSource: "sample",
         waveform: "triangle",
         playing: false,
+        advanced: false,
     };
 
     let audioCtx = null;
@@ -42,6 +47,7 @@
     let recordedChunks = [];
     let noiseBuffer = null;
     const sampleBuffers = {};
+    let midiAccess = null;
 
     let currentStep = 0;
     let nextNoteTime = 0;
@@ -87,12 +93,19 @@
 
     // ---- Sound sources ----
 
-    function noteToFreq(note) {
+    function noteNameToMidi(note) {
         const NOTE_INDEX = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
         const letter = note[0];
         const octave = parseInt(note.slice(1), 10);
-        const midi = NOTE_INDEX[letter] + (octave + 1) * 12;
-        return 440 * Math.pow(2, (midi - 69) / 12);
+        return NOTE_INDEX[letter] + (octave + 1) * 12;
+    }
+
+    function midiToFreq(midiNote) {
+        return 440 * Math.pow(2, (midiNote - 69) / 12);
+    }
+
+    function noteToFreq(note) {
+        return midiToFreq(noteNameToMidi(note));
     }
 
     function envGain(time, peak, attack, decay) {
@@ -192,9 +205,14 @@
         return 60 / state.bpm / 4; // 16th notes
     }
 
+    function loopLength() {
+        return Math.max(BEAT_STEPS, state.melodySteps);
+    }
+
     function scheduleStep(step, time) {
+        const beatStep = step % BEAT_STEPS;
         BEAT_ROWS.forEach((row) => {
-            if (state.beatPattern[row.id][step]) triggerDrum(row.id, time);
+            if (state.beatPattern[row.id][beatStep]) triggerDrum(row.id, time);
         });
         MELODY_ROWS.forEach((note) => {
             if (state.melodyPattern[note][step]) triggerNote(noteToFreq(note), time, stepDuration() * 0.9);
@@ -206,7 +224,7 @@
         while (nextNoteTime < audioCtx.currentTime + SCHEDULE_AHEAD_SEC) {
             scheduleStep(currentStep, nextNoteTime);
             nextNoteTime += stepDuration();
-            currentStep = (currentStep + 1) % STEPS;
+            currentStep = (currentStep + 1) % loopLength();
         }
         timerID = setTimeout(scheduler, LOOKAHEAD_MS);
     }
@@ -221,20 +239,29 @@
         rafID = requestAnimationFrame(drawLoop);
     }
 
-    let lastHighlighted = -1;
-    function highlightStep(step) {
-        if (lastHighlighted >= 0) {
-            document.querySelectorAll(`[data-step="${lastHighlighted}"]`).forEach((el) => el.classList.remove("playhead"));
+    const lastHighlighted = { beatGrid: -1, melodyGrid: -1 };
+    function highlightGrid(containerId, step) {
+        const container = document.getElementById(containerId);
+        const previous = lastHighlighted[containerId];
+        if (previous >= 0) {
+            container.querySelectorAll(`[data-step="${previous}"]`).forEach((el) => el.classList.remove("playhead"));
         }
-        document.querySelectorAll(`[data-step="${step}"]`).forEach((el) => el.classList.add("playhead"));
-        lastHighlighted = step;
+        container.querySelectorAll(`[data-step="${step}"]`).forEach((el) => el.classList.add("playhead"));
+        lastHighlighted[containerId] = step;
+    }
+
+    function highlightStep(step) {
+        highlightGrid("beatGrid", step % BEAT_STEPS);
+        highlightGrid("melodyGrid", step % state.melodySteps);
     }
 
     function clearPlayhead() {
-        if (lastHighlighted >= 0) {
-            document.querySelectorAll(`[data-step="${lastHighlighted}"]`).forEach((el) => el.classList.remove("playhead"));
-        }
-        lastHighlighted = -1;
+        Object.keys(lastHighlighted).forEach((containerId) => {
+            if (lastHighlighted[containerId] >= 0) {
+                document.getElementById(containerId).querySelectorAll(`[data-step="${lastHighlighted[containerId]}"]`).forEach((el) => el.classList.remove("playhead"));
+            }
+            lastHighlighted[containerId] = -1;
+        });
     }
 
     function startPlayback() {
@@ -258,21 +285,24 @@
 
     // ---- Grid UI ----
 
-    function buildGrid(container, rows, pattern, cssClass) {
+    function buildGrid(container, rows, pattern, cssClass, stepCount) {
         container.innerHTML = "";
+        container.style.minWidth = `${70 + stepCount * 30}px`;
+
         rows.forEach((row) => {
             const id = typeof row === "string" ? row : row.id;
             const label = typeof row === "string" ? row : row.label;
 
             const rowEl = document.createElement("div");
             rowEl.className = "grid-row";
+            rowEl.style.gridTemplateColumns = `70px repeat(${stepCount}, 1fr)`;
 
             const labelEl = document.createElement("div");
             labelEl.className = "row-label";
             labelEl.textContent = label;
             rowEl.appendChild(labelEl);
 
-            for (let step = 0; step < STEPS; step++) {
+            for (let step = 0; step < stepCount; step++) {
                 const cell = document.createElement("div");
                 cell.className = "cell" + (step % 4 === 0 ? " beat-marker" : "");
                 cell.dataset.row = id;
@@ -302,8 +332,19 @@
     }
 
     function refreshGridDom() {
-        buildGrid(document.getElementById("beatGrid"), BEAT_ROWS, state.beatPattern, "beat-grid");
-        buildGrid(document.getElementById("melodyGrid"), MELODY_ROWS, state.melodyPattern, "melody-grid");
+        buildGrid(document.getElementById("beatGrid"), BEAT_ROWS, state.beatPattern, "beat-grid", BEAT_STEPS);
+        buildGrid(document.getElementById("melodyGrid"), MELODY_ROWS, state.melodyPattern, "melody-grid", state.melodySteps);
+    }
+
+    function setMelodySteps(newSteps) {
+        MELODY_ROWS.forEach((note) => {
+            const arr = state.melodyPattern[note];
+            state.melodyPattern[note] = newSteps > arr.length
+                ? arr.concat(Array(newSteps - arr.length).fill(false))
+                : arr.slice(0, newSteps);
+        });
+        state.melodySteps = newSteps;
+        refreshGridDom();
     }
 
     // ---- Persistence ----
@@ -312,6 +353,7 @@
         const payload = {
             beatPattern: state.beatPattern,
             melodyPattern: state.melodyPattern,
+            melodySteps: state.melodySteps,
             bpm: state.bpm,
             drumSource: state.drumSource,
             waveform: state.waveform,
@@ -330,6 +372,7 @@
             const data = JSON.parse(raw);
             state.beatPattern = data.beatPattern;
             state.melodyPattern = data.melodyPattern;
+            state.melodySteps = data.melodySteps ?? MELODY_ROWS.reduce((max, n) => Math.max(max, data.melodyPattern[n].length), BEAT_STEPS);
             state.bpm = data.bpm ?? state.bpm;
             state.drumSource = data.drumSource ?? state.drumSource;
             state.waveform = data.waveform ?? state.waveform;
@@ -338,6 +381,7 @@
             document.getElementById("bpmValue").textContent = `${state.bpm} BPM`;
             document.getElementById("drumSource").value = state.drumSource;
             document.getElementById("waveform").value = state.waveform;
+            document.getElementById("melodySteps").value = String(state.melodySteps);
 
             refreshGridDom();
             setStatus("Loaded.");
@@ -390,6 +434,132 @@
         }
     }
 
+    // ---- MIDI input (live play-through) ----
+
+    async function connectMIDI() {
+        const statusEl = document.getElementById("midiStatus");
+        if (!navigator.requestMIDIAccess) {
+            statusEl.textContent = "Web MIDI isn't supported in this browser.";
+            return;
+        }
+        try {
+            midiAccess = await navigator.requestMIDIAccess();
+            wireMIDIInputs();
+            midiAccess.onstatechange = wireMIDIInputs;
+        } catch (err) {
+            statusEl.textContent = "MIDI access was denied.";
+            console.warn(err);
+        }
+    }
+
+    function wireMIDIInputs() {
+        const statusEl = document.getElementById("midiStatus");
+        const inputs = Array.from(midiAccess.inputs.values());
+        inputs.forEach((input) => {
+            input.onmidimessage = handleMIDIMessage;
+        });
+        statusEl.textContent = inputs.length
+            ? `Connected: ${inputs.map((i) => i.name).join(", ")}`
+            : "No MIDI inputs found.";
+    }
+
+    function handleMIDIMessage(event) {
+        const [statusByte, note, velocity] = event.data;
+        const command = statusByte & 0xf0;
+        if (command !== 0x90 || velocity === 0) return; // only note-on triggers a sound
+
+        ensureAudio();
+        if (audioCtx.state === "suspended") audioCtx.resume();
+        triggerNote(midiToFreq(note), audioCtx.currentTime, 0.4);
+    }
+
+    // ---- MIDI export ----
+
+    function writeVarLen(value, bytes) {
+        let buffer = value & 0x7f;
+        while ((value >>= 7)) {
+            buffer <<= 8;
+            buffer |= (value & 0x7f) | 0x80;
+        }
+        while (true) {
+            bytes.push(buffer & 0xff);
+            if (buffer & 0x80) buffer >>= 8;
+            else break;
+        }
+    }
+
+    function buildStandardMidiFile(trackBytes, ppq) {
+        const header = [
+            0x4d, 0x54, 0x68, 0x64, // "MThd"
+            0x00, 0x00, 0x00, 0x06, // header length
+            0x00, 0x00, // format 0
+            0x00, 0x01, // 1 track
+            (ppq >> 8) & 0xff, ppq & 0xff,
+        ];
+        const trackHeader = [
+            0x4d, 0x54, 0x72, 0x6b, // "MTrk"
+            (trackBytes.length >>> 24) & 0xff,
+            (trackBytes.length >>> 16) & 0xff,
+            (trackBytes.length >>> 8) & 0xff,
+            trackBytes.length & 0xff,
+        ];
+        return new Uint8Array([...header, ...trackHeader, ...trackBytes]);
+    }
+
+    function exportMIDI() {
+        const PPQ = 96;
+        const ticksPerStep = PPQ / 4;
+        const events = [];
+
+        for (let step = 0; step < loopLength(); step++) {
+            const tick = step * ticksPerStep;
+            const beatStep = step % BEAT_STEPS;
+
+            BEAT_ROWS.forEach((row) => {
+                if (!state.beatPattern[row.id][beatStep]) return;
+                const note = DRUM_MIDI_NOTES[row.id];
+                events.push({ tick, on: true, channel: 9, note, velocity: 100 });
+                events.push({ tick: tick + Math.max(1, Math.round(ticksPerStep * 0.5)), on: false, channel: 9, note, velocity: 0 });
+            });
+
+            MELODY_ROWS.forEach((noteName) => {
+                if (!state.melodyPattern[noteName][step]) return;
+                const note = noteNameToMidi(noteName);
+                events.push({ tick, on: true, channel: 0, note, velocity: 90 });
+                events.push({ tick: tick + Math.max(1, Math.round(ticksPerStep * 0.9)), on: false, channel: 0, note, velocity: 0 });
+            });
+        }
+
+        events.sort((a, b) => a.tick - b.tick || (a.on ? 1 : -1) - (b.on ? 1 : -1));
+
+        const trackBytes = [];
+        const microsPerQuarter = Math.round(60000000 / state.bpm);
+        writeVarLen(0, trackBytes);
+        trackBytes.push(0xff, 0x51, 0x03, (microsPerQuarter >> 16) & 0xff, (microsPerQuarter >> 8) & 0xff, microsPerQuarter & 0xff);
+
+        let lastTick = 0;
+        events.forEach((ev) => {
+            writeVarLen(ev.tick - lastTick, trackBytes);
+            lastTick = ev.tick;
+            trackBytes.push((ev.on ? 0x90 : 0x80) | (ev.channel & 0x0f), ev.note & 0x7f, ev.velocity & 0x7f);
+        });
+
+        writeVarLen(0, trackBytes);
+        trackBytes.push(0xff, 0x2f, 0x00); // end of track
+
+        const bytes = buildStandardMidiFile(trackBytes, PPQ);
+        const blob = new Blob([bytes], { type: "audio/midi" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `composer-pattern-${Date.now()}.mid`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        setStatus("MIDI file downloaded.");
+    }
+
     // ---- Wiring ----
 
     function setStatus(text) {
@@ -434,6 +604,21 @@
         document.getElementById("saveBtn").addEventListener("click", savePattern);
         document.getElementById("loadBtn").addEventListener("click", loadPattern);
         document.getElementById("recordBtn").addEventListener("click", (e) => toggleRecord(e.currentTarget));
+
+        const advancedToggle = document.getElementById("advancedToggle");
+        const advancedPanel = document.getElementById("advancedPanel");
+        advancedToggle.addEventListener("click", () => {
+            state.advanced = !state.advanced;
+            advancedPanel.classList.toggle("hidden", !state.advanced);
+            advancedToggle.classList.toggle("playing", state.advanced);
+        });
+
+        document.getElementById("melodySteps").addEventListener("change", (e) => {
+            setMelodySteps(parseInt(e.target.value, 10));
+        });
+
+        document.getElementById("midiConnectBtn").addEventListener("click", connectMIDI);
+        document.getElementById("midiExportBtn").addEventListener("click", exportMIDI);
     }
 
     document.addEventListener("DOMContentLoaded", init);

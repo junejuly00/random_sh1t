@@ -9,7 +9,7 @@
 <body>
 <div class="app">
     <header class="app-header">
-        <h1>🎼 Composer</h1>
+        <h1>🎛️ Composer</h1>
         <p>A little machine for making little songs. Click steps, hit play.</p>
     </header>
 
@@ -45,6 +45,26 @@
             <button id="saveBtn" class="btn btn-small">💾 Save</button>
             <button id="loadBtn" class="btn btn-small">📂 Load</button>
             <button id="recordBtn" class="btn btn-small">🎙️ Record</button>
+            <button id="advancedToggle" class="btn btn-small">🧪 Advanced</button>
+        </div>
+    </section>
+
+    <section id="advancedPanel" class="advanced-panel hidden">
+        <label class="field">
+            Melody width
+            <select id="melodySteps">
+                <option value="16" selected>16 steps</option>
+                <option value="32">32 steps</option>
+            </select>
+        </label>
+
+        <div class="field midi-controls">
+            MIDI
+            <div class="midi-row">
+                <button id="midiConnectBtn" class="btn btn-small">🔌 Connect Device</button>
+                <button id="midiExportBtn" class="btn btn-small">⬇ Export .mid</button>
+            </div>
+            <span id="midiStatus">No MIDI device connected.</span>
         </div>
     </section>
 
