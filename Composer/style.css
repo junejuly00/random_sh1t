@@ -113,6 +113,36 @@ body {
     margin-left: auto;
 }
 
+.advanced-panel {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 24px;
+    background: #1b1b2f;
+    border: 1px solid #313244;
+    border-radius: 16px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+}
+
+.advanced-panel.hidden {
+    display: none;
+}
+
+.midi-controls {
+    gap: 6px;
+}
+
+.midi-row {
+    display: flex;
+    gap: 8px;
+}
+
+#midiStatus {
+    font-size: 0.75rem;
+    color: #6c7086;
+}
+
 .grid-panel {
     background: #24243a;
     border-radius: 16px;

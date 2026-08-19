@@ -10,3 +10,5 @@
 - Tempo control (60-200 BPM).
 - Save/Load pattern via `localStorage`.
 - Record playback to a downloadable `.webm` file.
+- Advanced mode: 16/32-step melody width, live MIDI input play-through, and
+  MIDI export to a downloadable `.mid` file.
