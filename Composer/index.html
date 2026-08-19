@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Composer - Web Based Composing Machine</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+    <header class="app-header">
+        <h1>🎼 Composer</h1>
+        <p>A little machine for making little songs. Click steps, hit play.</p>
+    </header>
+
+    <section class="transport">
+        <button id="playBtn" class="btn btn-primary">▶ Play</button>
+        <button id="clearBtn" class="btn">🧹 Clear</button>
+
+        <label class="field">
+            Tempo
+            <input type="range" id="bpmRange" min="60" max="200" value="120">
+            <span id="bpmValue">120 BPM</span>
+        </label>
+
+        <label class="field">
+            Drum sound
+            <select id="drumSource">
+                <option value="synth">Synth</option>
+                <option value="sample" selected>Samples</option>
+            </select>
+        </label>
+
+        <label class="field">
+            Waveform
+            <select id="waveform">
+                <option value="sine">Sine</option>
+                <option value="triangle" selected>Triangle</option>
+                <option value="square">Square</option>
+                <option value="sawtooth">Sawtooth</option>
+            </select>
+        </label>
+
+        <div class="field save-load">
+            <button id="saveBtn" class="btn btn-small">💾 Save</button>
+            <button id="loadBtn" class="btn btn-small">📂 Load</button>
+            <button id="recordBtn" class="btn btn-small">🎙️ Record</button>
+        </div>
+    </section>
+
+    <section class="grid-panel">
+        <h2>Beats</h2>
+        <div id="beatGrid" class="grid beat-grid"></div>
+    </section>
+
+    <section class="grid-panel">
+        <h2>Melody</h2>
+        <div id="melodyGrid" class="grid melody-grid"></div>
+    </section>
+
+    <footer class="app-footer">
+        <span id="status">Ready.</span>
+    </footer>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
