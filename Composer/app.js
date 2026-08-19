@@ -29,6 +29,9 @@
     // General MIDI drum map (channel 10).
     const DRUM_MIDI_NOTES = { kick: 36, snare: 38, hihat: 42, clap: 39, tom: 45 };
 
+    const MELODY_STEP_INCREMENT = 16;
+    const MELODY_STEP_MAX = 4096; // safety ceiling, not a real limit anyone should hit
+
     const state = {
         beatPattern: Object.fromEntries(BEAT_ROWS.map((r) => [r.id, Array(BEAT_STEPS).fill(false)])),
         melodyPattern: Object.fromEntries(MELODY_ROWS.map((n) => [n, Array(BEAT_STEPS).fill(false)])),
@@ -246,7 +249,9 @@
         if (previous >= 0) {
             container.querySelectorAll(`[data-step="${previous}"]`).forEach((el) => el.classList.remove("playhead"));
         }
-        container.querySelectorAll(`[data-step="${step}"]`).forEach((el) => el.classList.add("playhead"));
+        const current = container.querySelectorAll(`[data-step="${step}"]`);
+        current.forEach((el) => el.classList.add("playhead"));
+        if (current.length) current[0].scrollIntoView({ inline: "nearest", block: "nearest" });
         lastHighlighted[containerId] = step;
     }
 
@@ -337,6 +342,7 @@
     }
 
     function setMelodySteps(newSteps) {
+        newSteps = Math.max(BEAT_STEPS, Math.min(MELODY_STEP_MAX, newSteps));
         MELODY_ROWS.forEach((note) => {
             const arr = state.melodyPattern[note];
             state.melodyPattern[note] = newSteps > arr.length
@@ -345,6 +351,21 @@
         });
         state.melodySteps = newSteps;
         refreshGridDom();
+        document.getElementById("melodyLengthLabel").textContent = `${newSteps} steps`;
+    }
+
+    function growMelody() {
+        if (state.melodySteps >= MELODY_STEP_MAX) {
+            setStatus(`That's about as long as songs get around here (${MELODY_STEP_MAX} steps).`);
+            return;
+        }
+        setMelodySteps(state.melodySteps + MELODY_STEP_INCREMENT);
+        setStatus(`Melody is now ${state.melodySteps} steps.`);
+    }
+
+    function shrinkMelody() {
+        setMelodySteps(state.melodySteps - MELODY_STEP_INCREMENT);
+        setStatus(`Melody is now ${state.melodySteps} steps.`);
     }
 
     // ---- Persistence ----
@@ -381,7 +402,7 @@
             document.getElementById("bpmValue").textContent = `${state.bpm} BPM`;
             document.getElementById("drumSource").value = state.drumSource;
             document.getElementById("waveform").value = state.waveform;
-            document.getElementById("melodySteps").value = String(state.melodySteps);
+            document.getElementById("melodyLengthLabel").textContent = `${state.melodySteps} steps`;
 
             refreshGridDom();
             setStatus("Loaded.");
@@ -613,9 +634,8 @@
             advancedToggle.classList.toggle("playing", state.advanced);
         });
 
-        document.getElementById("melodySteps").addEventListener("change", (e) => {
-            setMelodySteps(parseInt(e.target.value, 10));
-        });
+        document.getElementById("melodyGrow").addEventListener("click", growMelody);
+        document.getElementById("melodyShrink").addEventListener("click", shrinkMelody);
 
         document.getElementById("midiConnectBtn").addEventListener("click", connectMIDI);
         document.getElementById("midiExportBtn").addEventListener("click", exportMIDI);
